@@ -4,11 +4,7 @@ import { ProblemExtractor } from '../packages/problem-extractor';
 import { logger } from '../logger';
 
 export class PopulateProblems {
-  private static data : Promise<LeetcodeProblem[] | null> | null = null;
-
-  public static async populate() : Promise<void> {
-    const problems = await this.problems;
-
+  public static async populate(problems : LeetcodeProblem[] | null) : Promise<void> {
     if (problems === null) {
       return;
     }
@@ -61,13 +57,5 @@ export class PopulateProblems {
     });
 
     await p.save();
-  }
-
-  public static get problems() : Promise<LeetcodeProblem[] | null> | null {
-    if (this.data === null) {
-      this.data = ProblemExtractor.problems;
-    }
-
-    return this.data;
   }
 }
