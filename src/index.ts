@@ -8,7 +8,7 @@ const serve = async () : Promise<void> => {
 
   try {
     await Database.connect();
-    CronPopulate.schedule("0 * * * *");
+    CronPopulate.schedule(process.env.CRON_EXPRESSION || "0 * * * *");
   } catch(e) {
     logger.error("Exception caught scheduling cron job: " + e);
   }
