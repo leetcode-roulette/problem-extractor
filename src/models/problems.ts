@@ -6,7 +6,9 @@ export interface IProblem extends Document {
   titleSlug: string,
   isPremium: boolean,
   difficulty: number,
-  frontEndId: number
+  frontEndId: number,
+  numSubmitted: number,
+  numAccepted: number
 };
 
 const problemsSchema : Schema<IProblem> = new mongoose.Schema({
@@ -15,7 +17,9 @@ const problemsSchema : Schema<IProblem> = new mongoose.Schema({
   titleSlug: 'string',
   isPremium: 'boolean',
   difficulty: 'number',
-  frontEndId: 'number'
+  frontEndId: 'number',
+  numSubmitted: 'number',
+  numAccepted: 'number'
 });
 
 const Problems : Model<IProblem> = mongoose.model('problems', problemsSchema);
