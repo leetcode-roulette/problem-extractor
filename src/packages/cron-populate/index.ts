@@ -3,12 +3,20 @@ import { ProblemExtractor } from "../problem-extractor";
 import { PopulateProblems } from "../../db/problems";
 import { logger } from "../../logger";
 
-export class CronPopulate {
-  public static async schedule(cronExpression: string) : Promise<ScheduledTask> {
-    return cron.schedule(cronExpression, this.run);
+export class CronJob {
+  public scheduledTask : ScheduledTask;
+
+  constructor(cronExpression: string) {
+    this.scheduledTask = this.startJob(cronExpression);
   }
 
-  private static async run() : Promise<void> {
+  private startJob(cronExpression) : ScheduledTask {
+    return cron.schedule(cronExpression, this.job, {
+      timezone: process.env.TIMEZONE || "UTC",
+    });
+  }
+
+  private async job() : Promise<void> {
     try {
       const problems = await ProblemExtractor.problems;
       await PopulateProblems.populate(problems);
