@@ -1,6 +1,7 @@
 import { Problems, IProblem } from '../models/problems';
 import { LeetcodeProblem } from '../packages/problem-extractor/interfaces';
 import { ProblemExtractor } from '../packages/problem-extractor';
+import { logger } from '../logger';
 
 export class PopulateProblems {
   private static data : Promise<LeetcodeProblem[] | null> | null = null;
@@ -16,7 +17,7 @@ export class PopulateProblems {
       await this.populateRow(problem);
     });
 
-    console.log("Database has been populated");
+    logger.info("Database has been populated");
   }
 
   private static async populateRow(problem : LeetcodeProblem) : Promise<void> {

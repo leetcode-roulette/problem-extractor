@@ -1,4 +1,5 @@
 import { AxiosResponse } from 'axios';
+import { logger } from '../../logger';
 import { axiosClient } from './axios-client';
 import { LeetcodeProblem } from './interfaces';
 
@@ -14,7 +15,15 @@ export class ProblemExtractor {
   }
 
   private static async makeAPICallAndGetData() : Promise<LeetcodeProblem[] | null> {
-    const data : AxiosResponse = await axiosClient.get("/api/problems/all");
+    let data : AxiosResponse;
+
+    try {
+      data = await axiosClient.get("/api/problems/all");
+    } catch(e) {
+      logger.error("Exception caught getting data from leetcode API " + e);
+      return null;
+    }
+
     const parsedData : LeetcodeProblem[] = data.data.stat_status_pairs;
 
     return parsedData;
