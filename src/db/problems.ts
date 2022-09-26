@@ -1,7 +1,7 @@
 import { Problems, IProblem } from '../models/problems';
 import { LeetcodeProblem } from '../packages/problem-extractor/interfaces';
-import { ProblemExtractor } from '../packages/problem-extractor';
 import { logger } from '../logger';
+import { FilterQuery, UpdateQuery } from 'mongoose';
 
 export class PopulateProblems {
   public static async populate(problems : LeetcodeProblem[] | null) : Promise<void> {
@@ -17,22 +17,8 @@ export class PopulateProblems {
   }
 
   private static async populateRow(problem : LeetcodeProblem) : Promise<void> {
-    const rowAlreadyExists : boolean = await this.rowAlreadyExists(problem);
-
-    if (rowAlreadyExists) {
-      await this.updateProblem(problem);
-      return;
-    }
-
-    await this.saveProblem(problem);
-  }
-
-  private static async rowAlreadyExists(problem : LeetcodeProblem) : Promise<boolean> {
-    return await Problems.exists({ problemId: problem.stat.question_id }) !== null;
-  }
-
-  private static async updateProblem(problem : LeetcodeProblem) : Promise<void> {
-    Problems.findOneAndUpdate({ problemId: problem.stat.question_id}, {
+    const filter : FilterQuery<IProblem> = { problemId: problem.stat.question_id };
+    const update : UpdateQuery<IProblem> = {
       problemId: problem.stat.question_id,
       title: problem.stat.question__title,
       titleSlug: problem.stat.question__title_slug,
@@ -41,21 +27,12 @@ export class PopulateProblems {
       frontEndId: problem.stat.frontend_question_id,
       numSubmitted: problem.stat.total_submitted,
       numAccepted: problem.stat.total_acs
-    });
-  }
+    };
 
-  private static async saveProblem(problem : LeetcodeProblem) : Promise<void> {
-    const p : IProblem = await Problems.create({
-      problemId: problem.stat.question_id,
-      title: problem.stat.question__title,
-      titleSlug: problem.stat.question__title_slug,
-      isPremium: problem.paid_only,
-      difficulty: problem.difficulty.level,
-      frontEndId: problem.stat.frontend_question_id,
-      numSubmitted: problem.stat.total_submitted,
-      numAccepted: problem.stat.total_acs
+    const p : IProblem = await Problems.findOneAndUpdate(filter, update, {
+      new: true,
+      upsert: true
     });
-
-    await p.save();
+    p.save();
   }
 }
