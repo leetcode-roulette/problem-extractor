@@ -5,13 +5,21 @@ import { FilterQuery, UpdateQuery } from 'mongoose';
 
 export class PopulateProblems {
   public static async populate(problems : LeetcodeProblem[] | null) : Promise<void> {
+    const promises : Promise<void>[] = [];
+
     if (problems === null) {
       return;
     }
 
     problems.forEach(async problem => {
-      await this.populateRow(problem);
+      promises.push(this.populateRow(problem));
     });
+
+    try {
+      await Promise.all(promises);
+    } catch(e) {
+      throw new Error("Exception caught trying to populate problems database: " + e);
+    }
 
     logger.info("Database has been populated");
   }
@@ -33,6 +41,7 @@ export class PopulateProblems {
       new: true,
       upsert: true
     });
+
     p.save();
   }
 }

@@ -13,6 +13,7 @@ export class CronJob {
   private startJob(cronExpression) : ScheduledTask {
     return cron.schedule(cronExpression, this.job, {
       timezone: process.env.TIMEZONE || "UTC",
+      scheduled: process.env.SCHEDULED !== "false"
     });
   }
 
