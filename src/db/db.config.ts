@@ -4,20 +4,14 @@ import { logger } from "../logger";
 export class Database {
 	private static url: string | undefined;
 
-	public static async connect(): Promise<boolean> {
-		return new Promise((resolve, reject) => {
-			mongoose.connect(this.connectionString);
-
-			mongoose.connection.once("open", async (): Promise<void> => {
-				logger.info("Connected to database");
-				resolve(true);
-			});
-
-			mongoose.connection.on("error", async (e): Promise<void> => {
-				logger.error("Error connectiong to database", e);
-				reject(false);
-			});
-		});
+	public static async connect(): Promise<void> {
+		try {
+			await mongoose.connect(this.connectionString);
+			logger.info("Connected to database");
+		} catch(e) {
+			logger.error("Error connecting to database", e);
+			throw e;
+		}
 	}
 
 	public static disconnect(): void {
@@ -26,8 +20,7 @@ export class Database {
 		}
 
 		mongoose.disconnect();
-
-		mongoose.connection.close(async (): Promise<void> => {
+		mongoose.connection.close((): void => {
 			logger.info("Disconnected from database");
 		});
 	}
