@@ -4,18 +4,18 @@ import { logger } from "../logger";
 export class Database {
 	private static url: string | undefined;
 
-	public static async connect(): Promise<void> {
+	public static async connect(): Promise<boolean> {
 		return new Promise((resolve, reject) => {
 			mongoose.connect(this.connectionString);
 
 			mongoose.connection.once("open", async (): Promise<void> => {
 				logger.info("Connected to database");
-				resolve();
+				resolve(true);
 			});
 
 			mongoose.connection.on("error", async (e): Promise<void> => {
 				logger.error("Error connectiong to database", e);
-				reject();
+				reject(false);
 			});
 		});
 	}
