@@ -9,7 +9,6 @@ export class Database {
 			await mongoose.connect(this.connectionString);
 			logger.info("Connected to database");
 		} catch(e) {
-			logger.error("Error connecting to database", e);
 			throw e;
 		}
 	}
