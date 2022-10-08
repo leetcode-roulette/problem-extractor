@@ -1,40 +1,36 @@
-import mongoose from 'mongoose';
-import { logger } from '../logger';
+import mongoose from "mongoose";
+import { logger } from "../logger";
 
 export class Database {
-  private static url : string | undefined;
+	private static url: string | undefined;
 
-  public static connect() : void {
-    mongoose.connect(this.connectionString);
+	public static async connect(): Promise<void> {
+		try {
+			await mongoose.connect(this.connectionString);
+			logger.info("Connected to database");
+		} catch(e) {
+			throw e;
+		}
+	}
 
-    mongoose.connection.once("open", async () : Promise<void> => {
-      logger.info("Connected to database");
-    });
+	public static disconnect(): void {
+		if (!mongoose.connection) {
+			return;
+		}
 
-    mongoose.connection.on("error", async (e) : Promise<void> => {
-      logger.error("Error connectiong to database", e);
-    });
-  }
+		mongoose.disconnect();
+		mongoose.connection.close((): void => {
+			logger.info("Disconnected from database");
+		});
+	}
 
-  public static disconnect() : void {
-    if (!mongoose.connection) {
-      return;
-    }
+	private static get connectionString(): string {
+		this.url = process.env.MONGO_CONNECTION_STRING;
 
-    mongoose.disconnect();
+		if (this.url === undefined) {
+			throw "MONGO_CONNECTION_STRING can not be found or is not defined";
+		}
 
-    mongoose.connection.close(async () : Promise<void> => {
-      logger.info("Disconnected from database");
-    })
-  }
-
-  private static get connectionString() : string {
-    this.url = process.env.MONGO_CONNECTION_STRING;
-
-    if (this.url === undefined) {
-      throw("MONGO_CONNECTION_STRING can not be found or is not defined");
-    }
-
-    return this.url;
-  }
+		return this.url;
+	}
 }
